@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Búsqueda de Héroes</title>
+</head>
+<body>
+    <h1>Procure um Heroi</h1>
+    <form method="get" action="/">
+        <input type="text" name="hero" placeholder="Ej: deadpool" required>
+        <button type="submit">Buscar</button>
+    </form>
+
+    <hr>
+
+    {% if query %}
+        {% if results %}
+            {% for hero in results %}
+                <div style="margin-bottom: 20px;">
+                    <h2>{{ hero.name }}</h2>
+                    <img src="{{ hero.image.url }}" alt="{{ hero.name }}" width="150">
+                    <p>ID: {{ hero.id }}</p>
+                </div>
+            {% endfor %}
+        {% else %}
+            <p>Não foi encontrado nenhum heroi com esse nome "{{ query }}...".</p>
+        {% endif %}
+    {% endif %}
+</body>
+</html>
