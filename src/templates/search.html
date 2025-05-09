@@ -2,29 +2,121 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Búsqueda de Héroes</title>
+    <title>{{ query }}</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"> 
+    <style>
+        body {
+            background-color: #f5f5f5;
+        }
+
+        .hero-card {
+            transition: all 0.3s ease;
+        }
+
+        .progress {
+            height: 22px;
+        }
+
+        .alignment-good {
+            border-left: 5px solid #198754;
+            background-color: #e9f7ef;
+        }
+
+        .alignment-bad {
+            border-left: 5px solid #dc3545;
+            background-color: #f8d7da;
+        }
+
+        .alignment-neutral {
+            border-left: 5px solid #6c757d;
+            background-color: #e2e3e5;
+        }
+    </style>
 </head>
-<body>
-    <h1>Procure um Heroi</h1>
-    <form method="get" action="/">
-        <input type="text" name="hero" placeholder="Ej: deadpool" required>
-        <button type="submit">Buscar</button>
+<body class="bg-light">
+<div class="container py-5">
+    <h1 class="text-center mb-4">🔍 Search for a Hero</h1>
+
+    <form method="get" action="/" class="row g-3 justify-content-center mb-5">
+        <div class="col-md-6">
+            <input type="text" name="hero" class="form-control" placeholder="Ex: deadpool" required>
+        </div>
+        <div class="col-auto">
+            <button type="submit" class="btn btn-primary">Search</button>
+        </div>
     </form>
-
-    <hr>
-
     {% if query %}
         {% if results %}
-            {% for hero in results %}
-                <div style="margin-bottom: 20px;">
-                    <h2>{{ hero.name }}</h2>
-                    <img src="{{ hero.image.url }}" alt="{{ hero.name }}" width="150">
-                    <p>ID: {{ hero.id }}</p>
-                </div>
-            {% endfor %}
+            <div class="row row-cols-1 row-cols-md-2 g-4">
+                {% for hero in results %}
+                    {% set align = hero.biography.alignment.lower() %}
+                    {% if align == 'good' %}
+                        {% set card_class = 'alignment-good' %}
+                    {% elif align == 'bad' %}
+                        {% set card_class = 'alignment-bad' %}
+                    {% else %}
+                        {% set card_class = 'alignment-neutral' %}
+                    {% endif %}
+
+                    <div class="col">
+                        <div class="card hero-card shadow-sm {{ card_class }}">
+                            <div class="card-header bg-dark text-white text-center">
+                                <h3 class="mb-0">{{ hero.name }}</h3>
+                            </div>
+                            <div class="card-body">
+                                <div class="text-center mb-3">
+                                    <img src="{{ hero.image.url }}" alt="{{ hero.name }}" class="img-fluid rounded" style="max-height: 250px;">
+                                </div>
+
+                                <h5>🧬 Biography</h5>
+                                <ul class="list-group list-group-flush mb-3">
+                                    <li class="list-group-item"><strong>Full Name:</strong> {{ hero.biography['full-name'] }}</li>
+                                    <li class="list-group-item"><strong>Aliases:</strong> {{ hero.biography.aliases | join(', ') }}</li>
+                                    <li class="list-group-item"><strong>First Appearance:</strong> {{ hero.biography['first-appearance'] }}</li>
+                                    <li class="list-group-item"><strong>Publisher:</strong> {{ hero.biography.publisher }}</li>
+                                    <li class="list-group-item"><strong>Alignment:</strong> {{ hero.biography.alignment }}</li>
+                                </ul>
+
+                                <h5>🧍 Appearance</h5>
+                                <ul class="list-group list-group-flush mb-3">
+                                    <li class="list-group-item"><strong>Gender:</strong> {{ hero.appearance.gender }}</li>
+                                    <li class="list-group-item"><strong>Height:</strong> {{ hero.appearance.height[1] }}</li>
+                                    <li class="list-group-item"><strong>Weight:</strong> {{ hero.appearance.weight[1] }}</li>
+                                    <li class="list-group-item"><strong>Eye Color:</strong> {{ hero.appearance['eye-color'] }}</li>
+                                    <li class="list-group-item"><strong>Hair Color:</strong> {{ hero.appearance['hair-color'] }}</li>
+                                </ul>
+
+                                <h5>⚡ Powerstats</h5>
+                                {% for stat, value in hero.powerstats.items() %}
+                                    {% if value.isdigit() %}
+                                        <div class="mb-2">
+                                            <div class="d-flex justify-content-between">
+                                                <small>{{ stat.capitalize() }}</small>
+                                                <small>{{ value }}</small>
+                                            </div>
+                                            <div class="progress">
+                                                <div class="progress-bar bg-info text-dark" role="progressbar" style="width: {{value | int}}%;" aria-valuenow="{{ value }}" aria-valuemin="0" aria-valuemax="100">
+                                                    {{ value }}%
+                                                </div>
+                                            </div>
+                                        </div>
+                                    {% endif %}
+                                {% endfor %}
+                                <h5>🔗 Connections</h5>
+                                <p><strong>Group Affiliation:</strong> {{ hero.connections['group-affiliation'] }}</p>
+                                <p><strong>Relatives:</strong> {{ hero.connections.relatives }}</p>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
         {% else %}
-            <p>Não foi encontrado nenhum heroi com esse nome "{{ query }}...".</p>
+            <div class="alert alert-warning text-center">
+                No hero found with the name "<strong>{{ query }}</strong>".
+            </div>
         {% endif %}
     {% endif %}
+</div>
 </body>
 </html>

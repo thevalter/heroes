@@ -17,7 +17,8 @@ def search_hero():
         if response.status_code == 200:
             data = response.json()
             results = data.get("results", [])
-
+            print(data)
+            
     return render_template('search.html', results=results, query=query)
 
 if __name__ == '__main__':
